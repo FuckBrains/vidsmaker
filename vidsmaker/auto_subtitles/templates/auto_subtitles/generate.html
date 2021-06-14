@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <img src="{{ preview }}" alt='video preview with subtitles' />
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for transcript in transcripts %}
+      <textarea name='transcript-{{forloop.counter}}'>{{ transcript }}</textarea>
+    {% endfor %}
+    {{ form.as_p }}
+    <button type="submit">Generate</button>
+  </form>
+
+  <form action="{{ download_link }}" method="post">
+    {% csrf_token %}
+    <button type="submit">Download</button>
+  </form>
+
+  <form action="{{ save_link }}" method="post">
+    {% csrf_token %}
+    <button type="submit">Save & quit</button>
+  </form>
+
+  <p><a href="{% url 'index' %}">Return to home</a></p>
+{% endblock %}

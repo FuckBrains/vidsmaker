@@ -1,0 +1,65 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass&family=Rubik:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+  <title>vidsmaker</title>
+</head>
+<body>
+  <div class="left-menu">
+    <i class="fas fa-camera-retro logo"></i>
+
+    <div class="menu">
+      <a href="{% url 'index' %}" class="menu-element"><i class="fas fa-home"></i> Home</a>
+      <a href="{% url 'upload' %}" class="menu-element"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
+      <a href="{% url 'videos' %}" class="menu-element"><i class="fas fa-video"></i> Videos</a>
+      <a href="{% url 'profile' %}" class="menu-element"><i class="fas fa-user-circle"></i> Profile</a>
+    </div>
+  
+    <button>
+      <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a>
+    </button>
+  </div>
+  <div class="container">
+    {% block content %}
+    {% endblock %}
+  </div>
+</body>
+<script>
+  const path = window.location.pathname
+  const menuElements = document.querySelectorAll('.menu-element')
+  const resetMenuElements = () => {
+      menuElements.forEach(item => {
+      item.setAttribute('class', 'menu-element')
+    })
+  }
+  const pathParts = path.split('/')
+  if (path === "/" || path === "") {
+    resetMenuElements()
+    menuElements[0].setAttribute('class', 'menu-element selected')
+  }
+  else if (pathParts.includes('upload')) {
+    resetMenuElements()
+    menuElements[1].setAttribute('class', 'menu-element selected')
+  }
+  else if (pathParts.includes('generate')) {
+    resetMenuElements()
+    menuElements[2].setAttribute('class', 'menu-element selected')
+  }
+  else if (pathParts.includes('videos')) {
+    resetMenuElements()
+    menuElements[2].setAttribute('class', 'menu-element selected')
+  }
+  else if (pathParts.includes('profile')) {
+    resetMenuElements()
+    menuElements[3].setAttribute('class', 'menu-element selected')
+  }
+</script>
+</html>

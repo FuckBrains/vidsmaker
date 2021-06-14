@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <table border>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Go</th>
+        <th>Mo</th>
+        <th>Ko</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Storage used</td>
+        <td>{{ storage_used_go }}</td>
+        <td>{{ storage_used_mo }}</td>
+        <td>{{ storage_used_ko }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <strong>Max Storage: {{ max_storage }}</strong>
+  <button>
+    <a href="{% url 'videos' %}">My videos</a>
+  </button>
+  <button>
+    <a href="{% url 'password_change' %}">Change password</a>
+  </button>
+{% endblock %}

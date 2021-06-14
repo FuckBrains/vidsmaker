@@ -1,0 +1,21 @@
+# Mac and local test files
+**/.DS_STORE
+**/*.mp4
+**/*.flac
+**/*.icloud
+
+# django
+**/*.log
+**/*.pot
+**/*.pyc
+**/__pycache__
+**/db.sqlite3
+**/media
+
+# Backup files # 
+**/*.bak
+
+# env
+**/.env
+**/venv/
+**/vidsmaker-04171cda8a63.json
