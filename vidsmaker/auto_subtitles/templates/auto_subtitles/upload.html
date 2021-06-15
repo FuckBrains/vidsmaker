@@ -1,11 +1,36 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  <h2>Upload your video here</h2>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
+    <div class="form-field file-field">
+      <label for="id_document">
+        Document:
+        <input type="file" name="document" required="" id="id_document" accept="video/mp4,video/mov,video/wmv,video/avi,video/mkv,video/webm"/>
+        <div class="input-content">
+          <i class="fas fa-file-import"></i>
+          <p>Click or drag & drop here<br/>to upload your files</p>
+          <p>Accepted files: .mp4, .mov, .wmv, .avi, .mkv, .webm</p>
+        </div>
+      </label>
+    </div>
+    {% for field in form %}
+        {% if forloop.counter == 2 %}
+            <div class="form-field lang-field">{{ field.label_tag }} {{ field }}</div>
+        {% endif %}
+    {% endfor %}
+    <button type="submit" class="primary submit-upload" disabled><i class="fas fa-upload"></i>Upload</button>
   </form>
 
   <p><a href="{% url 'index' %}">Return to home</a></p>
+
+  <script>
+    const fileInput = document.getElementById('id_document')
+    const submitBtn = document.querySelector('.submit-upload')
+
+    fileInput.addEventListener('change', (e) => {
+      submitBtn.removeAttribute("disabled")
+    })
+  </script>
 {% endblock %}

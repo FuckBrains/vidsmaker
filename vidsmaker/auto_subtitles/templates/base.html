@@ -8,8 +8,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Overpass&family=Rubik:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,400;0,600;1,400&family=Rubik:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/upload.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/videos.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/profile.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'registration/login.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'registration/signup.css' %}">
   <title>vidsmaker</title>
 </head>
 <body>
@@ -35,6 +40,7 @@
 <script>
   const path = window.location.pathname
   const menuElements = document.querySelectorAll('.menu-element')
+  const container = document.querySelector('.container')
   const resetMenuElements = () => {
       menuElements.forEach(item => {
       item.setAttribute('class', 'menu-element')
@@ -44,22 +50,27 @@
   if (path === "/" || path === "") {
     resetMenuElements()
     menuElements[0].setAttribute('class', 'menu-element selected')
+    container.setAttribute('class', 'container container-home')
   }
   else if (pathParts.includes('upload')) {
     resetMenuElements()
     menuElements[1].setAttribute('class', 'menu-element selected')
+    container.setAttribute('class', 'container container-upload')
   }
   else if (pathParts.includes('generate')) {
     resetMenuElements()
     menuElements[2].setAttribute('class', 'menu-element selected')
+    container.setAttribute('class', 'container container-generate')
   }
   else if (pathParts.includes('videos')) {
     resetMenuElements()
     menuElements[2].setAttribute('class', 'menu-element selected')
+    container.setAttribute('class', 'container container-videos')
   }
   else if (pathParts.includes('profile')) {
     resetMenuElements()
     menuElements[3].setAttribute('class', 'menu-element selected')
+    container.setAttribute('class', 'container container-profile')
   }
 </script>
 </html>

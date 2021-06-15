@@ -63,5 +63,25 @@ h1, h2 {
   width: calc(100% - 180px);
   height: calc(100vh - 20px);
   overflow: scroll;
-  padding: 20px 40px 0px 20px;
+  padding: 20px 20px 0px 40px;
+}
+
+button.primary {
+  width: 230px;
+  height: 40px;
+  background-color: #0024FE;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-family: 'Rubik', Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+button.primary i {
+  margin-right: 8px;
+}
+
+button.primary:disabled {
+  background-color: grey;
+  cursor: not-allowed;
 }

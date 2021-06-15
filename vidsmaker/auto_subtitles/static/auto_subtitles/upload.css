@@ -1,0 +1,77 @@
+.container-upload form {
+  width: 100%;
+  height: calc(100% - 62px); /* 100% - height of h2 + its margin */
+  display: flex;
+  position: relative;
+}
+
+.container-upload h2 {
+  font-size: 32px;
+  margin: 0;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.container-upload form > .form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.container-upload form > .file-field {
+  width: calc(60% - 25px);
+  margin-right: 25px;
+}
+
+.container-upload form > .lang-field {
+  width: 40%;
+}
+
+.container-upload form .file-field label {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100% - 130px);
+}
+
+.container-upload form input[type="file"] {
+  display: none;
+}
+
+.container-upload form .input-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #0024FE;
+  background-color: #EDF0F8;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.container-upload form .input-content i {
+  text-align: center;
+  color: #0024FE;
+  font-size: 50px;
+}
+
+.container-upload form .input-content p {
+  text-align: center;
+  color: #0024FE;
+}
+
+.container-upload form .input-content p:first-of-type {
+  font-family: 'Rubik', Helvetica, sans-serif;
+}
+
+.container-upload form .input-content p:last-of-type {
+  font-style: italic;
+  margin: 0;
+}
+
+.container-upload form button[type="submit"] {
+  position: absolute;
+  bottom: 45px;
+  left: calc(50% - 110px);
+}
