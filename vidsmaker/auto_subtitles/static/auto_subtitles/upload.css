@@ -5,13 +5,6 @@
   position: relative;
 }
 
-.container-upload h2 {
-  font-size: 32px;
-  margin: 0;
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
 .container-upload form > .form-field {
   display: flex;
   flex-direction: column;

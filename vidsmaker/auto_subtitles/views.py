@@ -9,7 +9,7 @@ from .models import Document, Transcript
 from .helpers.gcp import CloudStorage, SpeechToText
 from .helpers import video_editor as ve
 
-import json, os, mimetypes
+import json, os, mimetypes, re
 
 def index(request):
     return render(request, 'auto_subtitles/index.html')
@@ -75,19 +75,32 @@ def generate_video(request, document_id):
     document = get_object_or_404(Document, pk=document_id)
     transcript = get_object_or_404(Transcript, pk=document.transcript_id)
     results = json.loads(transcript.transcript)
+
+    # download vido if it's not savec locally
     if not os.path.exists(document.document.path):
-        # download vido if it's not savec locally
         cs = CloudStorage()
         filepath = str(document.document)
         filepath = 'media/{}'.format(filepath)
         source_blob_name = '{}/{}'.format(document.user.pk, document.name)
         cs.download_blob(source_blob_name, filepath)
-    preview_path = ve.extract_frame(ve.replace_last(document.document.path, '.', '-subbed.'), 0.1)
+
+    # set the preview time to 0.1s or the time in the query parameters
+    video_duration = ve.get_duration(document.document.path)
+    preview_path = ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
+
     if request.method == 'POST':
         form = TranscriptForm(instance=transcript, data=request.POST)
         if form.is_valid():
             transcript = form.save(commit=False)
-            transcripts = [request.POST[key] for key in request.POST if key.startswith('transcript-')]
+            transcripts = []
+            for key in request.POST:
+                if key.startswith('transcript-'):
+                    transcript_number = key.split("-")[-1]
+                    transcripts.append({
+                        "transcript": request.POST[key],
+                        "start_time": request.POST['transcript_start-{}'.format(transcript_number)],
+                        "end_time": request.POST['transcript_end-{}'.format(transcript_number)],
+                    })
             new_transcript = ve.replace_in_transcript(results, transcripts)
             transcript.transcript = json.dumps(new_transcript)
             transcript.save()
@@ -95,16 +108,23 @@ def generate_video(request, document_id):
             filepath = str(document.document)
             filename = filepath.replace('documents/', '')
             subs = ve.create_subtitles(results["results"])
-            ve.add_subs_to_video(subs, filename, transcript)
+            ve.add_subs_to_video(subs, filename, transcript, request.POST['text_x'], request.POST['text_y'])
             # create new preview
-            preview_path = ve.extract_frame(ve.replace_last(document.document.path, '.', '-subbed.'), 0.1)
+            preview_path = ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
     else:
         form = TranscriptForm(instance=transcript)
 
-    transcripts = [result["alternatives"][0]["transcript"] for result in results["results"]]
+    transcripts = ve.create_subtitles(results["results"])
     download_link = '/generate/{}/download'.format(document.pk)
     save_link = download_link.replace('download', 'save')
-    return render(request, 'auto_subtitles/generate.html', { 'form': form, 'transcripts': transcripts, 'download_link': download_link, 'save_link': save_link, 'preview': preview_path })
+    return render(request, 'auto_subtitles/generate.html', {
+        'form': form,
+        'transcripts': transcripts,
+        'download_link': download_link,
+        'save_link': save_link,
+        'preview': preview_path,
+        'video_duration': video_duration,
+    })
 
 @login_required
 def download(request, document_id):

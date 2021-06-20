@@ -62,6 +62,8 @@ class Transcript(models.Model):
     background_color = models.CharField(max_length=7, default="#000000")
     background_opacity = models.FloatField(default=0.6, validators=[MinValueValidator(0),MaxValueValidator(1)])
     text_size = models.IntegerField(default=20, validators=[MinValueValidator(0),MaxValueValidator(200)])
+    text_x = models.CharField(default="center", max_length=10)
+    text_y = models.CharField(default="bottom", max_length=10)
 
     def __str__(self):
         return self.transcript

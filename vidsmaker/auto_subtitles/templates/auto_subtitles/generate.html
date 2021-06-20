@@ -1,25 +1,121 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <img src="{{ preview }}" alt='video preview with subtitles' />
-  <form method="post" enctype="multipart/form-data">
+  <h2>Generate transcripts</h2>
+
+  <div class="video-container">
+    <video id="player">
+      <source src="{{ preview }}" type="video/mp4">
+    </video>
+    <div id='player-controls'>
+      <div>
+        <button id="play_button"><i class="fas fa-play" id="play_icon"></i></button>
+      </div>
+      <input type="range" name="video_time" id="video_time" value="0.0" step="0.1" min="0">
+      <div class="time">
+        <time id="time-elapsed">00:00</time>
+        <span> / </span>
+        <time id="duration">00:00</time>
+      </div>
+      <div>
+        <i class="fas fa-volume-up" id="vol_img"></i>
+        <input type="range" id="change_vol" onchange="change_vol()" step="0.05" min="0" max="1" value="1">
+      </div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="generate-form">
     {% csrf_token %}
-    {% for transcript in transcripts %}
-      <textarea name='transcript-{{forloop.counter}}'>{{ transcript }}</textarea>
-    {% endfor %}
+    <div class="transcripts-container">
+      {% for transcript in transcripts %}
+        <div class="time-container">
+          <input name='transcript_start-{{forloop.counter}}' type='text' value="{{ transcript.0.0 }}" min="0" max="{{ video_duration }}" />
+          :
+          <input name='transcript_end-{{forloop.counter}}' type='text' value="{{ transcript.0.1 }}" min="0" max="{{ video_duration }}" />
+        </div>
+        <textarea name='transcript-{{forloop.counter}}'>{{ transcript.1 }}</textarea>
+      {% endfor %}
+    </div>
     {{ form.as_p }}
-    <button type="submit">Generate</button>
+    <button class="primary" type="submit"><i class="fas fa-cogs"></i>Generate</button>
   </form>
 
-  <form action="{{ download_link }}" method="post">
-    {% csrf_token %}
-    <button type="submit">Download</button>
-  </form>
+  <div class="extra-forms">
+    <form action="{{ download_link }}" method="post" class="download-form">
+      {% csrf_token %}
+      <button type="submit" class="secondary"><i class="fas fa-download"></i>Download</button>
+    </form>
+    
+    <form action="{{ save_link }}" method="post" class="save-form">
+      {% csrf_token %}
+      <button type="submit" class="secondary"><i class="fas fa-sign-out-alt"></i>Save & quit</button>
+    </form>
+  </div>
 
-  <form action="{{ save_link }}" method="post">
-    {% csrf_token %}
-    <button type="submit">Save & quit</button>
-  </form>
+  <script>
+    const video = document.getElementById('player');
+    const play_btn = document.getElementById('play_button')
+    const play_icon = document.getElementById('play_icon')
+    const video_time = document.getElementById('video_time')
+    const timeElapsed = document.getElementById('time-elapsed');
 
-  <p><a href="{% url 'index' %}">Return to home</a></p>
+
+    video.addEventListener('loadeddata', () => {
+      const videoDuration = Math.round(video.duration);
+      const time = formatTime(videoDuration);
+      duration.innerText = `${time.minutes}:${time.seconds}`;
+      duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`)
+      video_time.setAttribute('max', video.duration)
+    });
+
+    play_btn.addEventListener('click', play)
+  
+    function play() {
+      video.play();
+      play_icon.setAttribute("class", "fas fa-pause")
+      play_btn.removeEventListener('click', play)
+      play_btn.addEventListener('click', pause)
+    }
+    function pause() {
+      video.pause();
+      play_icon.setAttribute("class", "fas fa-play")
+      play_btn.removeEventListener('click', pause)
+      play_btn.addEventListener('click', play)
+    }
+    function change_vol(e) {
+      video.volume = e.target.value;
+    }
+
+    video.addEventListener('timeupdate', () => {
+      video_time.value = video.currentTime
+      updateTimeElapsed()
+    })
+
+    video_time.addEventListener('change', (e) => {
+      video.currentTime = parseFloat(e.target.value)
+    })
+
+    video.addEventListener('ended', () => {
+      play_icon.setAttribute("class", "fas fa-undo")
+      play_btn.removeEventListener('click', pause)
+      play_btn.addEventListener('click', play)
+    })
+
+    function formatTime(timeInSeconds) {
+      const result = new Date(timeInSeconds * 1000).toISOString().substr(11, 8);
+
+      return {
+        minutes: result.substr(3, 2),
+        seconds: result.substr(6, 2),
+      };
+    };
+
+    function updateTimeElapsed() {
+      const time = formatTime(Math.round(video.currentTime));
+      timeElapsed.innerText = `${time.minutes}:${time.seconds}`;
+      timeElapsed.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`)
+    }
+
+  </script>
+  
 {% endblock %}

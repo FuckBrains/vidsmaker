@@ -1,0 +1,134 @@
+.container-generate {
+  position: relative;
+}
+
+.container-generate .transcripts-container {
+  position: absolute;
+  right: 40px;
+  top: 85px;
+  width: calc(50% - 40px);
+  height: calc(100% - 62px);
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #0024FE;
+  border-radius: 12px;
+  padding: 12px 0;
+  background-color: #EDF0F8;
+}
+
+.container-generate .video-container {
+  width: calc(50% - 60px);
+}
+
+.container-generate .video-container video {
+  width: 100%;
+}
+
+.container-generate #player-controls {
+  background-color: #EDF0F8;
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+}
+
+.container-generate #player-controls button {
+  height: 20px;
+  margin-left: 2px;
+  margin-right: 5px;
+  margin-top: 2px;
+  color: #0024FE;
+  background-color: #EDF0F8;
+  border: none;
+  cursor: pointer;
+}
+
+.container-generate .time {
+  margin-right: 5px;
+}
+
+.container-generate #video_time {
+  flex: 3;
+  height: 10px;
+  margin-right: 10px;
+}
+
+.container-generate #video_time::-webkit-slider-thumb  {
+  box-shadow: -2000px 0 0 2000px #0024FE;
+}
+
+.container-generate #vol_img {
+  width: 20px;
+  color: #000;
+}
+
+.container-generate input[type='range'] {
+  overflow: hidden;
+  -webkit-appearance: none;
+  background-color: #cccccc;
+  border-radius: 5px;
+  width: 60px;
+}
+
+.container-generate input[type='range']::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 50%;
+  -webkit-appearance: none;
+  color: #0024FE;
+  cursor: pointer;
+}
+
+.container-generate input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+  background: #0024FE;
+  box-shadow: -40px 0 0 40px #0024FE;
+}
+
+.container-generate .transcripts-container textarea {
+  resize: none;
+  border: none;
+  outline: none;
+  margin-top: 4px;
+  padding: 8px;
+  background-color: #EDF0F8;
+  color: grey;
+}
+
+.container-generate .transcripts-container .time-container {
+  margin-left: 8px;
+}
+
+.container-generate .transcripts-container input {
+  display: inline;
+  width: 25px;
+  background-color: #EDF0F8;
+  border: none;
+}
+
+.container-generate .transcripts-container::-webkit-scrollbar {
+  display: none;
+}
+
+.container-generate .transcripts-container textarea:focus {
+  background-color: #EDF0F8;
+  color: #000;
+}
+
+.container-generate .extra-forms {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: -40px;
+  margin-right: 20px;
+}
+
+.container-generate .extra-forms .download-form {
+  margin-right: 20px;
+}

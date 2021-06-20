@@ -5,8 +5,19 @@ body {
   height: 100vh;
 }
 
+p, input, textarea {
+  font-family: 'Overpass', Helvetica, sans-serif;
+}
+
 h1, h2 {
   font-family: 'Rubik', Helvetica, sans-serif;
+}
+
+.container h2 {
+  font-size: 32px;
+  margin: 0;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .left-menu {
@@ -75,13 +86,26 @@ button.primary {
   border-radius: 8px;
   font-family: 'Rubik', Helvetica, sans-serif;
   cursor: pointer;
+  outline: none;
 }
 
-button.primary i {
+button i {
   margin-right: 8px;
 }
 
-button.primary:disabled {
+button:disabled {
   background-color: grey;
   cursor: not-allowed;
+}
+
+button.secondary {
+  width: 230px;
+  height: 40px;
+  background-color: #EDF0F8;
+  color: #0024FE;
+  border: 0;
+  border-radius: 8px;
+  font-family: 'Rubik', Helvetica, sans-serif;
+  cursor: pointer;
+  outline: none;
 }

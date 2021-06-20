@@ -4,6 +4,7 @@ import os.path as op
 import os
 import math
 from datetime import timedelta
+import re
 
 def replace_last(s, old, new):
     last_char_index = s.rfind(old)
@@ -34,13 +35,13 @@ def get_time_from_word_object(word_obj):
     nanos = 0 if word_obj['nanos'] == None else word_obj['nanos'] / 10**(-9)
     return seconds + nanos
 
-def add_subs_to_video(subs, filename, transcript):
+def add_subs_to_video(subs, filename, transcript, x, y):
     video = editor.VideoFileClip('media/documents/{}'.format(filename))
-    annotated_clips = [annotate(video.subclip(from_t, to_t), txt, transcript) for (from_t, to_t), txt in subs]
+    annotated_clips = [annotate(video.subclip(from_t, to_t), txt, transcript, x, y) for (from_t, to_t), txt in subs]
     video = editor.concatenate_videoclips(annotated_clips)
     video.write_videofile('media/documents/{}'.format(replace_last(filename, '.', '-subbed.')), temp_audiofile='temp-audio.m4a', remove_temp=True, codec="libx264", audio_codec="aac")
 
-def annotate(video, text, transcript):
+def annotate(video, text, transcript, x, y):
     """ Writes a text at the bottom of the clip. """
     # create text
     textclip = editor.TextClip(text, fontsize=transcript.text_size, font=transcript.font, color=transcript.text_color)
@@ -55,33 +56,50 @@ def annotate(video, text, transcript):
     # create background
     bg_color = transcript.background_color.replace('#', '')
     bg_color_rgb = tuple(int(bg_color[i:i+2], 16) for i in (0, 2, 4))
-    textclip = textclip.on_color(size=(textclip.w, textclip.h), color=bg_color_rgb, pos=('center', 'bottom'), col_opacity=transcript.background_opacity)
+    textclip = textclip.on_color(size=(textclip.w, textclip.h), color=bg_color_rgb, pos=(0,0), col_opacity=transcript.background_opacity)
     # define animation
     # text_mov = textclip.set_pos( lambda t: (max(w/30,int(w-0.5*w*t)),max(5*h/6,int(100*t))) )
-    textclip = textclip.set_pos(('center', 'bottom'))
+    if re.match(r"^([0-9\.]+)$", x):
+        x = float(x) 
+    elif (x not in ["center", "left", 'right']):
+        x = "center"
+    
+    if re.match(r"^([0-9\.]+)$", y):
+        y = float(y) 
+    elif (y not in ["top", "center", 'bottom']):
+        y = "bottom"
+    textclip = textclip.set_position((x,y))
     # add to video
     cvc = editor.CompositeVideoClip([video, textclip])
     return cvc.set_duration(video.duration)
 
 def replace_in_transcript(gcp_words_list, alternatives):
     for index, result in enumerate(gcp_words_list["results"]):
-        if result["alternatives"][0]["transcript"] != alternatives[index]:
-            gcp_words_list['results'][index]["alternatives"][0]["transcript"] = alternatives[index]
-            words_list = alternatives[index].split(" ")
+        if result["alternatives"][0]["transcript"] != alternatives[index]["transcript"]:
+            gcp_words_list['results'][index]["alternatives"][0]["transcript"] = alternatives[index]["transcript"]
+            words_list = alternatives[index]["transcript"].split(" ")
             for word_index, word in enumerate(result["alternatives"][0]["words"]):
                 if word["word"] != words_list[word_index]:
                     gcp_words_list['results'][index]["alternatives"][0]["words"][word_index] = words_list[word_index]
+        if result["alternatives"][0]["words"][0]["start_time"] != alternatives[index]["start_time"]:
+            result["alternatives"][0]["words"][0]["start_time"] = alternatives[index]["start_time"]
+        last_index = len(result["alternatives"][0]["words"]) - 1
+        if result["alternatives"][0]["words"][last_index]["end_time"] != alternatives[index]["end_time"]:
+            result["alternatives"][0]["words"][last_index]["end_time"] = alternatives[index]["end_time"]
     return gcp_words_list
 
-def extract_frame(path, time):
-    clip = editor.VideoFileClip(path)
-    name = path.split('/')[-1].split('.')[0]
-    imgdir = '/'.join(path.split('/')[:-1])
-    imgdir = replace_last(imgdir, '/media/', '/static/')
-    imgdir = replace_last(imgdir, '/vidsmaker/', '/vidsmaker/auto_subtitles/')
-    if not os.path.exists(imgdir):
-        os.makedirs(imgdir)
-    imgpath = op.join(imgdir, '{}.jpg'.format(name))
-    clip.save_frame(imgpath, time)
+def get_static_preview(path):
+    path_without_file = '/'.join(path.split('/')[:-1])
+    if not os.path.exists(path):
+        os.makedirs(path)
+    video = editor.VideoFileClip(path)
+    path = replace_last(path, '/media/', '/static/')
+    path = replace_last(path, '/vidsmaker/', '/vidsmaker/auto_subtitles/')
+    video.write_videofile(path, temp_audiofile='temp-audio.m4a', remove_temp=True, codec="libx264", audio_codec="aac")
     user = path.split('/')[-2]
-    return '/static/documents/{}/{}.jpg'.format(user, name)
+    name = path.split('/')[-1]
+    return '/static/documents/{}/{}'.format(user, name)
+
+def get_duration(path):
+    clip = editor.VideoFileClip(path)
+    return clip.duration

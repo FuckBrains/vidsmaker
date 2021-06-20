@@ -39,9 +39,13 @@ class DocumentForm(forms.ModelForm):
 class TranscriptForm(forms.ModelForm):
     class Meta:
         model = Transcript
-        fields = ('font','text_color','background_color','background_opacity','text_size',)
+        fields = ('font','text_x','text_y','text_color','background_color','background_opacity','text_size',)
         widgets = {
             'text_color': TextInput(attrs={'type': 'color'}),
             'background_color': TextInput(attrs={'type': 'color'}),
             'background_opacity': NumberInput(attrs={'min': '0', 'max': '1', 'step': '0.1'})
+        }
+        labels = {
+            'text_x': 'Text X ("left", "center", "right" or a number)',
+            'text_y': 'Text Y ("top", "center", "bottom" or a number)'
         }
