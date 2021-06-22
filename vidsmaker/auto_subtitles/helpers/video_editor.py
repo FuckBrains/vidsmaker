@@ -90,16 +90,42 @@ def replace_in_transcript(gcp_words_list, alternatives):
 
 def get_static_preview(path):
     path_without_file = '/'.join(path.split('/')[:-1])
-    if not os.path.exists(path):
-        os.makedirs(path)
     video = editor.VideoFileClip(path)
     path = replace_last(path, '/media/', '/static/')
     path = replace_last(path, '/vidsmaker/', '/vidsmaker/auto_subtitles/')
+    if not os.path.exists(path):
+        os.makedirs(path_without_file)
     video.write_videofile(path, temp_audiofile='temp-audio.m4a', remove_temp=True, codec="libx264", audio_codec="aac")
     user = path.split('/')[-2]
     name = path.split('/')[-1]
     return '/static/documents/{}/{}'.format(user, name)
 
+def get_static_path(path):
+    path = replace_last(path, '.', '-subbed.')
+    path = replace_last(path, '/media/', '/static/')
+    path = replace_last(path, '/vidsmaker/', '/vidsmaker/auto_subtitles/')
+    user = path.split('/')[-2]
+    name = path.split('/')[-1]
+    return {'relative_path': '/static/documents/{}/{}'.format(user, name), 'full_path': path }
+
 def get_duration(path):
     clip = editor.VideoFileClip(path)
     return clip.duration
+
+def create_translated_subs(translation, transcripts):
+    translations = replace_unicodes(translation).split('//')
+    result = []
+    for index, transcript in enumerate(transcripts):
+        result.append({
+            "text": translations[index],
+            "start_time": transcript["alternatives"][0]["words"][0]['start_time'],
+            "end_time": transcript["alternatives"][0]["words"][-1]['end_time']
+        })
+    return result
+
+def replace_unicodes(text):
+    matches = re.findall(r'&#([0-9]+);', text)
+    matches = set(matches)
+    for match in matches:
+        text = text.replace('&#{};'.format(match), chr(int(match)))
+    return text

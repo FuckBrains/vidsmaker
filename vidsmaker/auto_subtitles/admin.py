@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import User, Document, Transcript
+from .models import User, Document, Transcript, Translation
 
 # Register your models here.
 class UserCreationForm(forms.ModelForm):
@@ -80,6 +80,10 @@ admin.site.register(Document, DocumentAdmin)
 class TranscriptAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Transcript, TranscriptAdmin)
+
+class TranslationAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Translation, TranslationAdmin)
 
 # Now register the new UserAdmin...
 admin.site.register(User, UserAdmin)

@@ -12,6 +12,7 @@
   <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/upload.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/generate.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/translate.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/videos.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'auto_subtitles/profile.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'registration/login.css' %}">
@@ -63,6 +64,11 @@
     resetMenuElements()
     menuElements[2].setAttribute('class', 'menu-element selected')
     container.setAttribute('class', 'container container-generate')
+  }
+  else if (pathParts.includes('translate')) {
+    resetMenuElements()
+    menuElements[2].setAttribute('class', 'menu-element selected')
+    container.setAttribute('class', 'container container-translate')
   }
   else if (pathParts.includes('videos')) {
     resetMenuElements()

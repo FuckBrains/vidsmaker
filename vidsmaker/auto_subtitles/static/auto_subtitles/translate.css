@@ -1,0 +1,8 @@
+.container-translate form {
+  display: flex;
+  align-items: center;
+}
+
+.container-translate form .primary {
+  margin-left: 20px;
+}

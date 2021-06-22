@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.forms.widgets import TextInput, NumberInput
-from .models import User, Document, Transcript
+from .models import User, Document, Transcript, Translation
 
 class RegisterationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -34,6 +34,9 @@ class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ('document','language',)
+        labels = {
+            'language': 'Video language'
+        }
 
 
 class TranscriptForm(forms.ModelForm):
@@ -48,4 +51,12 @@ class TranscriptForm(forms.ModelForm):
         labels = {
             'text_x': 'Text X ("left", "center", "right" or a number)',
             'text_y': 'Text Y ("top", "center", "bottom" or a number)'
+        }
+
+class TranslationForm(forms.ModelForm):
+    class Meta:
+        model = Translation
+        fields = ('language',)
+        labels = {
+            'language': 'Target language'
         }

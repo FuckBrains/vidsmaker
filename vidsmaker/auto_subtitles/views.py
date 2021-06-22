@@ -4,9 +4,9 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
-from .forms import RegisterationForm, DocumentForm, TranscriptForm
-from .models import Document, Transcript
-from .helpers.gcp import CloudStorage, SpeechToText
+from .forms import RegisterationForm, DocumentForm, TranscriptForm, TranslationForm
+from .models import Document, Transcript, Translation
+from .helpers.gcp import CloudStorage, SpeechToText, translate_text
 from .helpers import video_editor as ve
 
 import json, os, mimetypes, re
@@ -76,6 +76,9 @@ def generate_video(request, document_id):
     transcript = get_object_or_404(Transcript, pk=document.transcript_id)
     results = json.loads(transcript.transcript)
 
+    # to check if user wants to generate translations or captions
+    is_translation = 'translation' in request.GET and re.match(r'^([a-z]{2}-[A-Z]{2})$', request.GET['translation'])
+
     # download vido if it's not savec locally
     if not os.path.exists(document.document.path):
         cs = CloudStorage()
@@ -84,37 +87,58 @@ def generate_video(request, document_id):
         source_blob_name = '{}/{}'.format(document.user.pk, document.name)
         cs.download_blob(source_blob_name, filepath)
 
-    # set the preview time to 0.1s or the time in the query parameters
     video_duration = ve.get_duration(document.document.path)
-    preview_path = ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
+    
+    preview_path = ve.get_static_path(document.document.path)
+    if not os.path.exists(preview_path['full_path']):
+        ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
+    preview_path = preview_path['relative_path']
 
     if request.method == 'POST':
         form = TranscriptForm(instance=transcript, data=request.POST)
         if form.is_valid():
-            transcript = form.save(commit=False)
-            transcripts = []
-            for key in request.POST:
-                if key.startswith('transcript-'):
-                    transcript_number = key.split("-")[-1]
-                    transcripts.append({
-                        "transcript": request.POST[key],
-                        "start_time": request.POST['transcript_start-{}'.format(transcript_number)],
-                        "end_time": request.POST['transcript_end-{}'.format(transcript_number)],
-                    })
-            new_transcript = ve.replace_in_transcript(results, transcripts)
-            transcript.transcript = json.dumps(new_transcript)
-            transcript.save()
+            subs = None
+            if is_translation:
+                translation = Translation.objects.filter(transcript=transcript, language=request.GET['translation']).order_by('created_at').last()
+                if translation:
+                    translations_list = json.loads(translation.translation)
+                    subs = [((sentence['start_time'], sentence['end_time']), sentence['text']) for sentence in translations_list]
+                    form.save()
+
+            if not subs:
+                transcript = form.save(commit=False)
+                transcripts = []
+                for key in request.POST:
+                    if key.startswith('transcript-'):
+                        transcript_number = key.split("-")[-1]
+                        transcripts.append({
+                            "transcript": request.POST[key],
+                            "start_time": request.POST['transcript_start-{}'.format(transcript_number)],
+                            "end_time": request.POST['transcript_end-{}'.format(transcript_number)],
+                        })
+                new_transcript = ve.replace_in_transcript(results, transcripts)
+                transcript.transcript = json.dumps(new_transcript)
+                transcript.save()
+                subs = ve.create_subtitles(results["results"])
+            
             # apply transcript to video
             filepath = str(document.document)
             filename = filepath.replace('documents/', '')
-            subs = ve.create_subtitles(results["results"])
             ve.add_subs_to_video(subs, filename, transcript, request.POST['text_x'], request.POST['text_y'])
             # create new preview
             preview_path = ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
     else:
         form = TranscriptForm(instance=transcript)
-
-    transcripts = ve.create_subtitles(results["results"])
+    
+    translation = None
+    if is_translation:
+        translation = Translation.objects.filter(transcript=transcript, language=request.GET['translation']).order_by('created_at').last()
+        if translation:
+            translations_list = json.loads(translation.translation)
+            transcripts = [((sentence['start_time'], sentence['end_time']), sentence['text']) for sentence in translations_list]
+    if not translation:
+        transcripts = ve.create_subtitles(results["results"])
+    
     download_link = '/generate/{}/download'.format(document.pk)
     save_link = download_link.replace('download', 'save')
     return render(request, 'auto_subtitles/generate.html', {
@@ -124,6 +148,7 @@ def generate_video(request, document_id):
         'save_link': save_link,
         'preview': preview_path,
         'video_duration': video_duration,
+        'title': 'Generate transcripts' if not is_translation else 'Generate subtitles in {}'.format(Translation.langs_dict[request.GET['translation']])
     })
 
 @login_required
@@ -157,7 +182,48 @@ def save_video(request, document_id):
             # delete video from local documents folder
             if os.path.exists(document.document.path):
                 os.remove(document.document.path)
-    return redirect('index')        
+    return redirect('index')
+
+@login_required
+def translate_video(request, document_id):
+    document = get_object_or_404(Document, pk=document_id)
+    transcript = get_object_or_404(Transcript, pk=document.transcript_id)
+    translations = Translation.objects.filter(transcript=transcript.pk)
+    if request.method == "POST":
+        form = TranslationForm(request.POST)
+        if form.is_valid():
+            language = form.cleaned_data.get('language')
+            translations = Translation.objects.filter(transcript=transcript.pk, language=language).order_by("created_at")
+            if translations.count() == 0 or translations.last().created_at < transcript.updated_at:
+                results = json.loads(transcript.transcript)
+                text = [result["alternatives"][0]["transcript"] for result in results["results"]]
+                text = '//'.join(text)
+                target_language = language[:2]
+                response = translate_text(target_language, text)
+                subtitles = ve.create_translated_subs(response['translatedText'], results['results'])
+                if translations.count() == 0:
+                    translation = Translation()
+                    translation.language = language
+                else:
+                    translation = translations.last()
+                translation.translation = json.dumps(subtitles)
+                translation.transcript = transcript
+                translation.save()
+                return render(request, 'auto_subtitles/translate.html', { 'form': form, 'document_id': document.pk, 'language': language, 'translations': translations, 'translations_text': [subs['text'] for subs in subtitles] })
+            elif translations.count() > 0:
+                translation = translations.last()
+                text = json.loads(translation.translation)
+                return render(request, 'auto_subtitles/translate.html', { 'form': form, 'document_id': document.pk, 'language': language, 'translations': translations, 'translations_text': [subs['text'] for subs in text] })
+    else:
+        form = TranslationForm()
+        if 'lang' in request.GET and re.match(r'^([a-z]{2}-[A-Z]{2})$', request.GET['lang']):
+            language = request.GET['lang']
+            translations = Translation.objects.filter(transcript=transcript.pk, language=language).order_by("created_at")
+            if translations.count() > 0:
+                translation = translations.last()
+                text = json.loads(translation.translation)
+                return render(request, 'auto_subtitles/translate.html', { 'form': form, 'document_id': document.pk, 'language': language, 'translations': translations, 'translations_text': [subs['text'] for subs in text] })
+    return render(request, 'auto_subtitles/translate.html', { 'form': form, 'document_id': document.pk, 'translations': translations })
 
 @login_required
 def videos(request):

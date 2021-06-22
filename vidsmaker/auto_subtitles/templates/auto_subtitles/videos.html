@@ -2,6 +2,7 @@
 
 {% block content %}
   {% for doc in documents %}
-    <a href="/generate/{{ doc.pk }}">{{ doc.name }}</a>
+    <a href="/generate/{{ doc.pk }}">Generate captions {{ doc.name }}</a>
+    <a href="/translate/{{ doc.pk }}">Translate {{ doc.name }}</a>
   {% endfor %}
 {% endblock %}

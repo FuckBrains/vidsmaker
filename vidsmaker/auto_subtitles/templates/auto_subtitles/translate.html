@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Translate your video</h2>
+  <strong>Your translations</strong>
+  {% for translation in translations %}
+    <div class="translation">
+      <a href="/translate/{{ document_id }}?lang={{ translation.language }}">Language: {{ translation.language }}</a>
+    </div>
+  {% endfor %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="primary" type="submit"><i class="fas fa-language"></i>Translate</button>
+  </form>
+  {% if language %}
+    <a href="/generate/{{ document_id }}?translation={{ language }}">Generate subtitles</a>
+  {% endif %}
+    <strong>Translation :</strong>
+    <p>
+      {% for text in translations_text %}
+        {{ text }}
+        <br>
+      {% endfor %}
+    </p>
+{% endblock %}

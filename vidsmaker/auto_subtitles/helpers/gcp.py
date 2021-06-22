@@ -1,8 +1,9 @@
 from google.cloud import storage
 from google.cloud import speech
+from google.cloud import translate_v2 as translate
 # import speech_recognition as sr
 from os import path
-import pickle
+import six
 
 class CloudStorage:
 
@@ -57,6 +58,18 @@ class SpeechToText:
             }
             result_dict['results'].append(obj)
         return result_dict
+
+
+def translate_text(target, text):
+    translate_client = translate.Client()
+    if isinstance(text, six.binary_type):
+        text = text.decode("utf-8")
+    # Text can also be a sequence of strings, in which case this method
+    # will return a sequence of results for each text.
+    result = translate_client.translate(text, target_language=target)
+    # input = result["input"], translation = result["translatedText"])), detectedLg = result["detectedSourceLanguage"]
+    return result
+
 
 # test_dict = {
 #     "results": [

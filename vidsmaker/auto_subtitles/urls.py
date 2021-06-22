@@ -18,4 +18,5 @@ urlpatterns = [
     path('generate/<int:document_id>/save', views.save_video, name='save'),
     path('generate/<int:document_id>', views.generate_video, name='generate'),
     path('videos/', views.videos, name='videos'),
+    path('translate/<int:document_id>', views.translate_video, name='translate'),
 ]

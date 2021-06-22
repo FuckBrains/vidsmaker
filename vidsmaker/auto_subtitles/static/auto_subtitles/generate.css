@@ -43,6 +43,7 @@
   color: #0024FE;
   background-color: #EDF0F8;
   border: none;
+  outline: none;
   cursor: pointer;
 }
 
