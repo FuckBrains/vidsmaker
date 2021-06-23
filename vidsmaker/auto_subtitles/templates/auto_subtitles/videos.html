@@ -2,7 +2,44 @@
 
 {% block content %}
   {% for doc in documents %}
-    <a href="/generate/{{ doc.pk }}">Generate captions {{ doc.name }}</a>
-    <a href="/translate/{{ doc.pk }}">Translate {{ doc.name }}</a>
+    <div class="video">
+      <strong>{{ doc.name }}</strong>
+      <a href="/generate/{{ doc.pk }}">Generate captions {{ doc.name }}</a>
+      <a href="/translate/{{ doc.pk }}">Translate {{ doc.name }}</a>
+      {% if doc.accessibility == 'public' %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="document_id" value="{{ doc.pk }}" />
+          <button type="submit"><i class="fas fa-lock"></i>Make private</button>
+        </form>
+        <div class="copy-link">
+          <input type="text" value="{{ doc.public_link }}" id="public_link-{{ doc.pk }}">
+          <button onclick="copyText(this, '{{ doc.pk }}')">Copy text</button>
+        </div>
+      {% else %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="document_id" value="{{ doc.pk }}" />
+          <button type="submit"><i class="fas fa-lock-open"></i>Make public</button>
+        </form>
+      {% endif %}
+    </div>
   {% endfor %}
+  <script>
+    function copyText(element, docId) {
+      const inputLink = document.querySelector(`#public_link-${docId}`)
+      inputLink.select();
+      inputLink.setSelectionRange(0, 99999); /* For mobile devices */
+      /* Copy the text inside the text field */
+      document.execCommand("copy");
+
+      element.style.backgroundColor = "green"
+      element.innerText = "Copied!"
+
+      setTimeout(() => {
+        element.style.backgroundColor = "unset"
+        element.innerText = "Copy text"
+      }, 2000)
+    }
+  </script>
 {% endblock %}

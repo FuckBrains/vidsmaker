@@ -227,6 +227,22 @@ def translate_video(request, document_id):
 
 @login_required
 def videos(request):
+    if request.method == 'POST':
+        if 'document_id' in request.POST and re.match(r"^([0-9\.]+)$", request.POST['document_id']):
+            document = Document.objects.get(pk=request.POST['document_id'])
+            if document:
+                cs = CloudStorage()
+                blob_name = '{}/{}'.format(document.user.pk, document.name)
+                if document.accessibility == 'public':
+                    cs.make_blob_private(blob_name)
+                    document.accessibility = 'private'
+                    document.public_link = None
+                    document.save()
+                elif document.accessibility == 'private':
+                    public_link = cs.make_blob_public(blob_name)
+                    document.accessibility = 'public'
+                    document.public_link = public_link
+                document.save()
     documents = Document.objects.filter(user=request.user.pk)
     return render(request, 'auto_subtitles/videos.html', { 'documents': documents })
 

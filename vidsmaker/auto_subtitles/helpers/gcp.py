@@ -20,12 +20,23 @@ class CloudStorage:
     
     def download_blob(self, source_blob_name, destination_file_name):
         """Downloads a blob from the bucket."""
-        print(destination_file_name)
         storage_client = storage.Client()
         bucket = storage_client.bucket(self.bucket_name)
         blob = bucket.blob(source_blob_name)
         blob.download_to_filename(destination_file_name)
-
+    
+    def make_blob_public(self, blob_name):
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(self.bucket_name)
+        blob = bucket.blob(blob_name)
+        blob.make_public()
+        return blob.public_url
+    
+    def make_blob_private(self, blob_name):
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(self.bucket_name)
+        blob = bucket.blob(blob_name)
+        blob.make_private()
 
 
 class SpeechToText:

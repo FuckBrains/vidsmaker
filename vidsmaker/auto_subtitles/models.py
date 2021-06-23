@@ -78,6 +78,8 @@ class Document(models.Model):
     language = models.TextField(default="en-US", choices=langs)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     transcript = models.ForeignKey(Transcript, on_delete=models.CASCADE, blank=True, null=True)
+    accessibility = models.CharField(choices=[('private', 'Private'), ('public', 'Public')], default="private", max_length=255)
+    public_link = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.document.path
