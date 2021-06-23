@@ -38,8 +38,22 @@ def get_time_from_word_object(word_obj):
 def add_subs_to_video(subs, filename, transcript, x, y):
     video = editor.VideoFileClip('media/documents/{}'.format(filename))
     annotated_clips = [annotate(video.subclip(from_t, to_t), txt, transcript, x, y) for (from_t, to_t), txt in subs]
-    video = editor.concatenate_videoclips(annotated_clips)
-    video.write_videofile('media/documents/{}'.format(replace_last(filename, '.', '-subbed.')), temp_audiofile='temp-audio.m4a', remove_temp=True, codec="libx264", audio_codec="aac")
+    # if clips don't start when the previous one finishes, add original video in between
+    all_clips = []
+    for index, clip in enumerate(annotated_clips):
+        all_clips.append(clip)
+        start, end = subs[index][0]
+        start, end = float(start), float(end)
+        previous_end = float(subs[index - 1][0][1]) if index != 0 else None
+        if index == 0 and start > 0:
+            all_clips.insert(0, video.subclip(0, start))
+        elif index == len(annotated_clips) - 1 and end < video.duration:
+            all_clips.append(video.subclip(end, video.duration))
+        if previous_end and start > previous_end:
+            all_clips.insert(index, video.subclip(previous_end, start))
+
+    final = editor.concatenate(all_clips)
+    final.write_videofile('media/documents/{}'.format(replace_last(filename, '.', '-subbed.')), temp_audiofile='temp-audio.m4a', remove_temp=True, codec="libx264", audio_codec="aac")
 
 def annotate(video, text, transcript, x, y):
     """ Writes a text at the bottom of the clip. """
