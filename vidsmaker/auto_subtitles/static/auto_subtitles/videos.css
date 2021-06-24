@@ -1,0 +1,104 @@
+.container-videos .videos {
+  width: 100%;
+}
+
+.container-videos .videos .video {
+  width: 30%;
+  display: inline-flex;
+  flex-direction: column;
+  background-color: #EDF0F8;
+  border: 2px solid #0096c7;
+  padding: 20px 25px;
+  border-radius: 12px;
+  position: relative;
+}
+
+.container-videos .videos .video h3 {
+  margin: 0;
+  margin-bottom: 25px;
+}
+
+.container-videos .videos .video .delete-form {
+  position: absolute;
+  top: 22px;
+  right: 25px;
+}
+
+.container-videos .videos .video .delete-form button {
+  border: none;
+  background-color: unset;
+  color: grey;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.container-videos .videos .video .delete-form button:hover {
+  color: red;
+}
+
+.container-videos .videos .video .delete-form button i {
+  margin: 0;
+}
+
+.container-videos .videos .video .fileinfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.container-videos .videos .video strong {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.container-videos .videos .video span b {
+  text-decoration: underline;
+}
+
+.container-videos .videos .video form > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.container-videos .videos .video .copy-link {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.container-videos .videos .video .copy-link input {
+  flex: 2;
+  margin: 0 4px;
+}
+
+.container-videos .videos .video .copy-link button {
+  border: 2px solid #0096c7;
+  color: #0096c7;
+  background-color: #EDF0F8;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.container-videos .videos .video .primary {
+  display: inline;
+  width: fit-content;
+  padding: 8px;
+  height: fit-content;
+  margin-left: 8px;
+}
+
+.container-videos .videos .video .links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 13px;
+  padding-top: 12px;
+}

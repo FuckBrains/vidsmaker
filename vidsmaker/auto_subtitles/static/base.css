@@ -1,12 +1,12 @@
 body {
   margin: 0;
   display: flex;
-  font-family: 'Overpass', Helvetica, sans-serif;
+  font-family: 'Raleway', Helvetica, sans-serif;
   height: 100vh;
 }
 
 p, input, textarea {
-  font-family: 'Overpass', Helvetica, sans-serif;
+  font-family: 'Raleway', Helvetica, sans-serif;
 }
 
 h1, h2 {
@@ -48,10 +48,11 @@ h1, h2 {
   padding: 20px 35px;
   border-radius: 0 6px 6px 0;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .left-menu .menu .selected {
-  background-color: #0024FE;
+  background-color: #0096c7;
   color: white;
 }
 
@@ -77,14 +78,17 @@ h1, h2 {
   padding: 20px 20px 0px 40px;
 }
 
+button {
+  font-family: 'Rubik', Helvetica, sans-serif;
+}
+
 button.primary {
   width: 230px;
   height: 40px;
-  background-color: #0024FE;
+  background-color: #0096c7;
   color: #fff;
   border: 0;
   border-radius: 8px;
-  font-family: 'Rubik', Helvetica, sans-serif;
   cursor: pointer;
   outline: none;
 }
@@ -102,10 +106,16 @@ button.secondary {
   width: 230px;
   height: 40px;
   background-color: #EDF0F8;
-  color: #0024FE;
+  color: #0096c7;
   border: 0;
   border-radius: 8px;
   font-family: 'Rubik', Helvetica, sans-serif;
   cursor: pointer;
   outline: none;
+}
+
+a {
+  color: #0096c7;
+  font-weight: 700;
+  text-decoration: none;
 }

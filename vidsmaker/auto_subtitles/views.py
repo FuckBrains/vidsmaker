@@ -139,13 +139,10 @@ def generate_video(request, document_id):
     if not translation:
         transcripts = ve.create_subtitles(results["results"])
     
-    download_link = '/generate/{}/download'.format(document.pk)
-    save_link = download_link.replace('download', 'save')
     return render(request, 'auto_subtitles/generate.html', {
         'form': form,
+        'document_id': document_id,
         'transcripts': transcripts,
-        'download_link': download_link,
-        'save_link': save_link,
         'preview': preview_path,
         'video_duration': video_duration,
         'title': 'Generate transcripts' if not is_translation else 'Generate subtitles in {}'.format(Translation.langs_dict[request.GET['translation']])
@@ -247,10 +244,16 @@ def videos(request):
     return render(request, 'auto_subtitles/videos.html', { 'documents': documents })
 
 @login_required
+def delete_video(request, document_id):
+    if request.method == 'POST' and re.match(r"^([0-9\.]+)$", document_id):
+        Document.objects.filter(pk=document_id).delete()
+    return redirect('videos')
+
+@login_required
 def profile(request):
     documents = Document.objects.filter(user=request.user.pk)
     storage_used = sum([doc.document.size for doc in documents])
-    storage_used_ko = round(storage_used / 1000, 2)
-    storage_used_mo = round(storage_used / 1000000, 5)
-    storage_used_go = round(storage_used / 1000000000, 8)
-    return render(request, 'registration/profile.html', { 'storage_used_ko': storage_used_ko, 'storage_used_mo': storage_used_mo, 'storage_used_go': storage_used_go, 'max_storage': '1Go' })
+    storage_used_kb = round(storage_used / 1000, 2)
+    storage_used_mb = round(storage_used / 1000000, 5)
+    storage_used_gb = round(storage_used / 1000000000, 8)
+    return render(request, 'registration/profile.html', { 'storage_used_kb': storage_used_kb, 'storage_used_mb': storage_used_mb, 'storage_used_gb': storage_used_gb, 'max_storage': '1GB' })

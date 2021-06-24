@@ -41,12 +41,12 @@
   </form>
 
   <div class="extra-forms">
-    <form action="{{ download_link }}" method="post" class="download-form">
+    <form action="{% url 'download' document_id %}" method="post" class="download-form">
       {% csrf_token %}
       <button type="submit" class="secondary"><i class="fas fa-download"></i>Download</button>
     </form>
     
-    <form action="{{ save_link }}" method="post" class="save-form">
+    <form action="{% url 'save' document_id %}" method="post" class="save-form">
       {% csrf_token %}
       <button type="submit" class="secondary"><i class="fas fa-sign-out-alt"></i>Save & quit</button>
     </form>

@@ -11,7 +11,7 @@
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
-  border: 2px solid #0024FE;
+  border: 2px solid #0096c7;
   border-radius: 12px;
   padding: 12px 0;
   background-color: #EDF0F8;
@@ -40,7 +40,7 @@
   margin-left: 2px;
   margin-right: 5px;
   margin-top: 2px;
-  color: #0024FE;
+  color: #0096c7;
   background-color: #EDF0F8;
   border: none;
   outline: none;
@@ -58,7 +58,7 @@
 }
 
 .container-generate #video_time::-webkit-slider-thumb  {
-  box-shadow: -2000px 0 0 2000px #0024FE;
+  box-shadow: -2000px 0 0 2000px #0096c7;
 }
 
 .container-generate #vol_img {
@@ -78,7 +78,7 @@
   height: 10px;
   border-radius: 50%;
   -webkit-appearance: none;
-  color: #0024FE;
+  color: #0096c7;
   cursor: pointer;
 }
 
@@ -87,8 +87,8 @@
   width: 0;
   height: 0;
   cursor: pointer;
-  background: #0024FE;
-  box-shadow: -40px 0 0 40px #0024FE;
+  background: #0096c7;
+  box-shadow: -40px 0 0 40px #0096c7;
 }
 
 .container-generate .transcripts-container textarea {

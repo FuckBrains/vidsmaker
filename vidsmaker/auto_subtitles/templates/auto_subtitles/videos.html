@@ -1,30 +1,51 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  {% for doc in documents %}
-    <div class="video">
-      <strong>{{ doc.name }}</strong>
-      <a href="/generate/{{ doc.pk }}">Generate captions {{ doc.name }}</a>
-      <a href="/translate/{{ doc.pk }}">Translate {{ doc.name }}</a>
-      {% if doc.accessibility == 'public' %}
-        <form method="post">
+  <h2>Your videos</h2>
+  <div class="videos">
+    {% for doc in documents %}
+      <div class="video">
+        <form action="{% url 'delete_video' doc.pk %}" method="post" class="delete-form">
           {% csrf_token %}
-          <input type="hidden" name="document_id" value="{{ doc.pk }}" />
-          <button type="submit"><i class="fas fa-lock"></i>Make private</button>
+          <button type="submit"><i class="fas fa-trash-alt"></i></button>
         </form>
-        <div class="copy-link">
-          <input type="text" value="{{ doc.public_link }}" id="public_link-{{ doc.pk }}">
-          <button onclick="copyText(this, '{{ doc.pk }}')">Copy text</button>
+        <h3>{{ doc.name }}</h3>
+        <div class="fileinfo">
+          <span class="filesize">{{ doc.size }}</span>
+          <span>{{ doc.uploaded_at|date:"d/m/Y" }}</span>
         </div>
-      {% else %}
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="document_id" value="{{ doc.pk }}" />
-          <button type="submit"><i class="fas fa-lock-open"></i>Make public</button>
-        </form>
-      {% endif %}
-    </div>
-  {% endfor %}
+        {% if doc.accessibility == 'public' %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="document_id" value="{{ doc.pk }}" />
+            <div>
+              <span>This video is <b>{{ doc.accessibility }}</b></span>
+              <button type="submit" class="primary"><i class="fas fa-lock"></i>Make it private</button>
+            </div>
+          </form>
+          <div class="copy-link">
+            <label for="public_link-{{ doc.pk }}">Link:</label>
+            <input type="text" value="{{ doc.public_link }}" id="public_link-{{ doc.pk }}">
+            <button onclick="copyText(this, '{{ doc.pk }}')">Copy text</button>
+          </div>
+        {% else %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="document_id" value="{{ doc.pk }}" />
+            <div>
+              <span>This video is <b>{{ doc.accessibility }}</b></span>
+              <button type="submit" class="primary"><i class="fas fa-lock-open"></i>Make it public</button>
+            </div>
+          </form>
+        {% endif %}
+        <div class="links">
+          <a href="/generate/{{ doc.pk }}">Generate captions <i class="fas fa-arrow-right"></i></a>
+          <a href="/translate/{{ doc.pk }}">Translate <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
   <script>
     function copyText(element, docId) {
       const inputLink = document.querySelector(`#public_link-${docId}`)
@@ -33,13 +54,38 @@
       /* Copy the text inside the text field */
       document.execCommand("copy");
 
-      element.style.backgroundColor = "green"
+      element.style.backgroundColor = "#06d6a0"
+      element.style.color = "white"
+      element.style.borderColor = "#06d6a0"
       element.innerText = "Copied!"
 
       setTimeout(() => {
         element.style.backgroundColor = "unset"
+        element.style.color = "#0096c7"
+        element.style.borderColor = "#0096c7"
         element.innerText = "Copy text"
       }, 2000)
     }
+
+    function formatBytesSize(bytes) {
+      // converts file size in GB to the lowest size above 1
+      if (bytes >= 1) {
+        return `${bytes} GB`
+      }
+      let resultStr = ""
+      let result = bytes * 1000
+      resultStr = `${result.toFixed(2)} MB`
+      if (result < 1) {
+        result *= 1000
+        resultStr = `${result.toFixed(2)} KB`
+      }
+      return resultStr
+    }
+
+    const sizes = document.querySelectorAll('.filesize')
+    sizes.forEach(size => {
+      const bytes = parseFloat(size.innerText)
+      size.innerText = formatBytesSize(bytes)
+    });
   </script>
 {% endblock %}
