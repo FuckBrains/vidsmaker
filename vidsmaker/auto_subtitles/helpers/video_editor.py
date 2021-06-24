@@ -102,7 +102,7 @@ def replace_in_transcript(gcp_words_list, alternatives):
             result["alternatives"][0]["words"][last_index]["end_time"] = alternatives[index]["end_time"]
     return gcp_words_list
 
-def get_static_preview(path):
+def create_static_preview(path):
     path_without_file = '/'.join(path.split('/')[:-1])
     video = editor.VideoFileClip(path)
     path = replace_last(path, '/media/', '/static/')

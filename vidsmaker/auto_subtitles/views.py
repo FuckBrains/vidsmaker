@@ -36,7 +36,7 @@ def model_form_upload(request):
         form = DocumentForm(request.POST, request.FILES)
         user_docs = Document.objects.filter(user=request.user.pk)
         user_storage = sum([doc.size for doc in user_docs])
-        file_size = request.FILES['document'].size
+        file_size = request.FILES['document'].size / 1000000000
         if form.is_valid() and request.FILES['document'].content_type.split('/')[0] == 'video' and user_storage + file_size <= 1:
             document = form.save(commit=False)
             document.user = request.user
@@ -90,8 +90,8 @@ def generate_video(request, document_id):
     video_duration = ve.get_duration(document.document.path)
     
     preview_path = ve.get_static_path(document.document.path)
-    if not os.path.exists(preview_path['full_path']):
-        ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
+    if not os.path.exists(preview_path['full_path']) and os.path.exists(ve.replace_last(document.document.path, '.', '-subbed.')):
+        ve.create_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
     preview_path = preview_path['relative_path']
 
     if request.method == 'POST':
@@ -126,7 +126,7 @@ def generate_video(request, document_id):
             filename = filepath.replace('documents/', '')
             ve.add_subs_to_video(subs, filename, transcript, request.POST['text_x'], request.POST['text_y'])
             # create new preview
-            preview_path = ve.get_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
+            preview_path = ve.create_static_preview(ve.replace_last(document.document.path, '.', '-subbed.'))
     else:
         form = TranscriptForm(instance=transcript)
     
